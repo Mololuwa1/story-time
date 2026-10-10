@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Story Time</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Story Time">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFF6EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1C1117" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFF6EC;--paper:#FFFFFF;--ink:#3D2236;--muted:#86697A;--line:#F1DFCD;
+  --lamp:#EE9F3E;--lamp-soft:#FCE3C1;--sage:#9DB088;--rose:#E79A8A;--slate:#C3A0D3;--wood:#C88A4B;
+  --night:#3D2236;--night-2:#5A3350;--milk:#FFF6EC;
+  --serif:"Young Serif",Georgia,"Times New Roman",serif;
+  --sans:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1C1117;--paper:#281923;--ink:#F8E9DC;--muted:#C2A5B2;--line:#3B2833;
+    --lamp:#F3AE55;--lamp-soft:#4A3020;--night:#2E1A29;--night-2:#4A2B42;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1C1117;--paper:#281923;--ink:#F8E9DC;--muted:#C2A5B2;--line:#3B2833;
+  --lamp:#F3AE55;--lamp-soft:#4A3020;--night:#2E1A29;--night-2:#4A2B42;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+main{max-width:560px;margin:0 auto;padding:14px 16px calc(104px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;line-height:1.15}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lamp);outline-offset:2px;border-radius:6px}
+.view[hidden]{display:none}
+.page-title{font-size:34px;margin:10px 4px 6px}
+.page-lede{color:var(--muted);font-size:15px;margin:0 4px 20px;max-width:52ch}
+
+/* Night panel: the one bold moment */
+.night{position:relative;overflow:hidden;border-radius:30px;padding:26px 22px 22px;color:var(--milk);
+  background:radial-gradient(120% 90% at 90% -10%,var(--night-2) 0%,var(--night) 62%)}
+.night::before{content:"";position:absolute;top:30px;left:58%;width:2px;height:2px;border-radius:50%;background:var(--milk);opacity:.7;
+  box-shadow:-120px 40px 0 0 rgba(255,246,236,.5),60px 70px 0 0 rgba(255,246,236,.35),-40px 12px 0 1px rgba(255,246,236,.4),110px 18px 0 0 rgba(255,246,236,.55),-170px 95px 0 0 rgba(255,246,236,.3),20px 120px 0 0 rgba(255,246,236,.25)}
+.moon{position:absolute;top:20px;right:20px;width:46px;height:46px}
+.week{font-family:var(--serif);font-size:clamp(58px,17vw,80px);line-height:.95;letter-spacing:-.01em;position:relative}
+.week small{display:block;font-family:var(--sans);font-size:16px;letter-spacing:0;color:rgba(255,246,236,.72);margin-top:8px}
+.sub{margin-top:4px;color:rgba(255,246,236,.72);font-size:15px;position:relative}
+.sub button{background:none;border:0;padding:0;color:var(--lamp);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.due-edit{display:none;margin-top:12px;gap:8px;align-items:center;flex-wrap:wrap;position:relative}
+.due-edit.open{display:flex}
+.due-edit input{max-width:190px;background:rgba(255,246,236,.1);border-color:rgba(255,246,236,.25);color:var(--milk);color-scheme:dark}
+.shelf-wrap{margin:24px -4px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;position:relative}
+.shelf{display:flex;align-items:flex-end;gap:3px;height:112px;min-width:300px;padding:0 4px;border-bottom:7px solid var(--wood);border-radius:0 0 4px 4px}
+.spine{flex:1;min-width:6px;border-radius:3px 3px 0 0;position:relative;transition:height .45s ease;box-shadow:inset -2px 0 0 rgba(0,0,0,.12)}
+.spine.empty{background:transparent;border:1px dashed rgba(255,246,236,.28);border-bottom:0;height:14px;box-shadow:none}
+.spine.future{background:rgba(255,246,236,.12);height:7px;box-shadow:none}
+.spine.now::after{content:"";position:absolute;left:50%;top:-13px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--lamp);box-shadow:0 0 10px 2px rgba(238,159,62,.7)}
+.shelf-labels{display:flex;justify-content:space-between;min-width:300px;font-size:12px;color:rgba(255,246,236,.55);margin-top:6px;padding:0 4px}
+.night-actions{display:flex;gap:10px;margin-top:22px;position:relative}
+.night-actions .btn{flex:1;text-align:center;white-space:nowrap;padding:13px 12px}
+.btn{display:inline-block;border:0;border-radius:999px;padding:13px 22px;background:var(--lamp);color:#3A1D0E;font-weight:700;cursor:pointer;font-size:16px;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);font-weight:600}
+.night .btn.ghost{color:var(--milk);border-color:rgba(255,246,236,.32)}
+.btn:active{transform:scale(.98)}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:18px 4px 0}
+.stat b{display:block;font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.1}
+.stat span{font-size:12px;color:var(--muted);line-height:1.3;display:block}
+
+.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:18px 18px 20px;margin-top:18px}
+.card h2{font-size:21px}
+.card .note{color:var(--muted);font-size:15px;margin-top:6px}
+.pick{display:flex;align-items:center;gap:14px;margin-top:14px}
+.pick .cover{width:46px;height:62px;border-radius:4px 8px 8px 4px;flex-shrink:0;background:var(--rose);box-shadow:inset 5px 0 0 rgba(0,0,0,.12)}
+.pick .t{font-family:var(--serif);font-size:17px;line-height:1.25}
+.pick .a{font-size:13px;color:var(--muted)}
+.pick .btn{margin-left:auto;padding:10px 16px;font-size:15px;flex-shrink:0}
+.tip{font-size:14px;color:var(--muted);margin:18px 4px 0;max-width:52ch}
+
+section.block{margin-top:30px}
+section.block > h2{font-size:24px;margin:0 4px 4px}
+section.block > p.lede{color:var(--muted);font-size:15px;margin:0 4px 14px;max-width:52ch}
+
+/* Forms */
+.field{margin-bottom:14px}
+.field label,.field .lbl{display:block;font-size:14px;font-weight:700;margin-bottom:6px}
+input[type=text],input[type=date],input[type=number],textarea,select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:var(--bg);font-size:16px}
+textarea{resize:vertical;min-height:64px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 16px;cursor:pointer;font-size:15px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.check{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--lamp)}
+.toast{margin-top:10px;font-size:14px;color:var(--muted);min-height:1.4em}
+
+/* Bottom sheet for logging */
+.scrim{position:fixed;inset:0;background:rgba(30,14,24,.45);z-index:39;opacity:0;transition:opacity .25s}
+.scrim.open{opacity:1}
+.scrim[hidden]{display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;max-width:560px;margin:0 auto;max-height:90vh;max-height:90dvh;overflow:auto;background:var(--paper);
+  border-radius:26px 26px 0 0;padding:8px 20px calc(22px + env(safe-area-inset-bottom,0px));
+  transform:translateY(105%);visibility:hidden;transition:transform .32s cubic-bezier(.2,.8,.2,1),visibility 0s .32s;box-shadow:0 -12px 40px -12px rgba(61,34,54,.35)}
+.sheet.open{transform:none;visibility:visible;transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 12px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sheet-head h2{font-size:24px}
+.sheet .btn.wide{width:100%}
+
+/* Tabs */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:center;gap:4px;
+  background:var(--bg);background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  border-top:1px solid var(--line);padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs button{flex:1;max-width:150px;background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:700;color:var(--muted);padding:4px 0;cursor:pointer}
+.tabs .ic{width:54px;height:30px;display:grid;place-items:center;border-radius:999px;transition:background .2s}
+.tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-current="page"]{color:var(--ink)}
+.tabs button[aria-current="page"] .ic{background:var(--lamp-soft)}
+
+.pill{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,12px);z-index:45;background:var(--night);color:var(--milk);
+  padding:11px 18px;border-radius:999px;font-size:15px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);text-align:center}
+.pill.show{opacity:1;transform:translate(-50%,0)}
+
+/* Lists */
+.books{list-style:none;margin:0;padding:0;background:var(--paper);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.book{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line)}
+.book:last-child{border-bottom:0}
+.book .meta{flex:1;min-width:0}
+.book .t{font-family:var(--serif);font-size:16px;line-height:1.3}
+.book .a{font-size:13px;color:var(--muted)}
+.book .count{color:var(--sage);font-weight:700}
+.book .act{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{border:1.5px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer}
+.icon-btn.star{padding:6px 10px}
+.icon-btn.star[aria-pressed="true"]{background:var(--lamp-soft);border-color:var(--lamp)}
+.empty-state{color:var(--muted);font-size:15px;padding:16px}
+.add-row{display:flex;align-items:center;gap:12px;margin:12px 4px 0;flex-wrap:wrap}
+
+.phase{margin-top:24px}
+.phase h3{font-size:19px;margin:0 4px}
+.phase .why{font-size:14px;color:var(--muted);margin:4px 4px 10px;max-width:52ch}
+.phase.current h3::after{content:"Now";font-family:var(--sans);font-size:12px;font-weight:700;background:var(--lamp-soft);color:var(--ink);padding:3px 10px;border-radius:999px;margin-left:10px;vertical-align:middle}
+.signature{margin:0 4px;padding:14px 16px;background:var(--lamp-soft);border-radius:16px;font-size:15px}
+.signature b{font-family:var(--serif);font-weight:400}
+
+.hist{list-style:none;margin:0;padding:0;background:var(--paper);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.hist li{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start}
+.hist li:last-child{border-bottom:0}
+.hist .d{width:58px;flex-shrink:0;font-size:13px;color:var(--muted);padding-top:2px;line-height:1.35}
+.hist .body{flex:1;min-width:0}
+.hist .t{font-family:var(--serif)}
+.hist .m{font-size:13px;color:var(--muted)}
+.hist .n{font-size:14px;margin-top:4px;font-style:italic;overflow-wrap:anywhere}
+.hist .del{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px}
+.foot{margin:24px 4px 0;font-size:13px;color:var(--muted);max-width:52ch}
+
+/* Reader */
+.reader{position:fixed;inset:0;z-index:50;background:var(--paper);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.reader[hidden]{display:none}
+.r-head{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.r-head h2{flex:1;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-timer{font-size:13px;color:var(--muted);flex-shrink:0}
+.r-body{flex:1;overflow:auto;position:relative;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.r-body.epub{overflow:hidden;background:var(--paper);padding:14px 20px}
+#epubView{height:100%}
+.r-msg{padding:28px 20px;color:var(--muted);max-width:44ch}
+.pdf-page{margin:12px auto;max-width:900px;width:calc(100% - 24px);background:#fff;border-radius:4px;box-shadow:0 6px 20px -12px rgba(61,34,54,.5);overflow:hidden}
+.pdf-page canvas{display:block;width:100%;height:100%}
+.r-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;border-top:1px solid var(--line)}
+.r-nav[hidden]{display:none}
+#rPos{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.spine,.sheet,.scrim,.pill{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <section class="view" id="view-tonight" aria-label="Tonight">
+    <header class="night">
+      <svg class="moon" viewBox="0 0 48 48" aria-hidden="true"><path d="M30 6a18 18 0 1 0 12 30A16 16 0 0 1 30 6z" fill="#FCE3C1"/></svg>
+      <div class="week" id="weekLabel">Week –</div>
+      <p class="sub" id="dueLine"></p>
+      <div class="due-edit" id="dueEdit">
+        <input type="date" id="dueInput" aria-label="Due date">
+        <button class="btn" id="dueSave">Save due date</button>
+      </div>
+      <div class="shelf-wrap" aria-label="Reading shelf: one book spine per week of pregnancy, growing with minutes read">
+        <div class="shelf" id="shelf"></div>
+        <div class="shelf-labels"><span>Week 16</span><span>Week 28</span><span>Week 40</span></div>
+      </div>
+      <div class="night-actions">
+        <button type="button" class="btn" id="startBtn">Start reading</button>
+        <button type="button" class="btn ghost" id="openLog">Log reading</button>
+      </div>
+    </header>
+    <div class="stats">
+      <div class="stat"><b id="sStreak">0</b><span>night streak</span></div>
+      <div class="stat"><b id="sNights">0</b><span>nights read</span></div>
+      <div class="stat"><b id="sMins">0</b><span>minutes</span></div>
+      <div class="stat"><b id="sKicks">0</b><span>nights with kicks</span></div>
+    </div>
+    <div class="card" id="tonightCard">
+      <h2 id="tonightH">Tonight</h2>
+      <p class="note" id="tonightLede"></p>
+      <div id="tonightPick"></div>
+    </div>
+    <p class="tip">Each spine on the shelf is a week of pregnancy. It grows with the minutes you read that week.</p>
+  </section>
+
+  <section class="view" id="view-books" aria-labelledby="booksT" hidden>
+    <h1 class="page-title" id="booksT">Books</h1>
+    <p class="page-lede">Your voice and the routine matter more than the words. Repeat one signature book often; newborns tend to recognise stories they heard in the womb.</p>
+    <section class="block" aria-labelledby="mbH" style="margin-top:0">
+      <h2 id="mbH">My books</h2>
+      <p class="lede">Your own PDF and EPUB files. They stay on this phone and are never uploaded.</p>
+      <ul class="books" id="myBooks"></ul>
+      <div class="add-row"><label class="btn" for="addBook" style="cursor:pointer">Add a book</label>
+      <input type="file" id="addBook" accept=".pdf,.epub,application/pdf,application/epub+zip" multiple hidden>
+      <p class="toast" id="mbToast" role="status" aria-live="polite" style="margin:0"></p></div>
+    </section>
+    <section class="block" aria-labelledby="listH">
+      <h2 id="listH">What to read</h2>
+      <p class="lede">Suggestions for each stage. Tap the star to choose your signature book.</p>
+      <div id="signatureBox"></div>
+      <div id="phases"></div>
+    </section>
+  </section>
+
+  <section class="view" id="view-log" aria-labelledby="logT" hidden>
+    <h1 class="page-title" id="logT">Story log</h1>
+    <p class="page-lede">Every night you've read together, kept for the day you show them.</p>
+    <ul class="hist" id="hist"></ul>
+    <section class="block" aria-labelledby="bkH">
+      <h2 id="bkH">Keep your log safe</h2>
+      <p class="lede">Your log lives on this phone. Save a backup now and then, and restore it if you switch phones. Backups cover your log only; keep your book files in the Files app.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin:0 4px">
+        <button type="button" class="btn ghost" id="exportBtn">Save a backup</button>
+        <label class="btn ghost" for="importFile" style="cursor:pointer">Restore a backup</label>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+      </div>
+      <p class="toast" id="bkToast" role="status" aria-live="polite" style="margin:10px 4px 0"></p>
+    </section>
+    <p class="foot" id="syncNote"></p>
+    <p class="foot">Read aloud at a normal, warm volume rather than placing speakers or headphones on the bump. Story Time is for bonding and routine, not medical advice.</p>
+  </section>
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <button type="button" data-tab="tonight" aria-current="page"><span class="ic"><svg viewBox="0 0 24 24"><path d="M15.5 3.5a8.5 8.5 0 1 0 5 14.6 7 7 0 0 1-5-14.6z"/></svg></span>Tonight</button>
+  <button type="button" data-tab="books"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/></svg></span>Books</button>
+  <button type="button" data-tab="log"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></span>Story log</button>
+</nav>
+
+<div class="scrim" id="scrim" hidden></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetH">
+  <div class="grab" aria-hidden="true"></div>
+  <div class="sheet-head"><h2 id="sheetH">Log reading</h2><button type="button" class="icon-btn" id="sheetClose">Cancel</button></div>
+  <form id="logForm" onsubmit="return false">
+    <div class="field">
+      <label for="fBook">What did you read?</label>
+      <input type="text" id="fBook" list="bookList" placeholder="Pick from the list or type your own" autocomplete="off">
+      <datalist id="bookList"></datalist>
+    </div>
+    <div class="row">
+      <div class="field"><label for="fMin">Minutes</label><input type="number" id="fMin" min="1" max="180" value="10" inputmode="numeric"></div>
+      <div class="field"><label for="fDate">Date</label><input type="date" id="fDate"></div>
+    </div>
+    <div class="field">
+      <span class="lbl" id="readerLbl">Who read?</span>
+      <div class="chips" role="group" aria-labelledby="readerLbl" id="readerChips">
+        <button type="button" class="chip" data-r="Dad" aria-pressed="true">Dad</button>
+        <button type="button" class="chip" data-r="Mum" aria-pressed="false">Mum</button>
+        <button type="button" class="chip" data-r="Both" aria-pressed="false">Both</button>
+      </div>
+    </div>
+    <div class="field"><label class="check"><input type="checkbox" id="fKick"> Baby moved or kicked while we read</label></div>
+    <div class="field"><label for="fNote">A line to remember (optional)</label><textarea id="fNote" maxlength="400" placeholder="e.g. Big kick at the bear hunt"></textarea></div>
+    <button class="btn wide" id="logBtn">Log reading</button>
+    <p class="toast" id="toast" role="status" aria-live="polite"></p>
+  </form>
+</div>
+<div class="pill" id="pill" role="status" aria-live="polite"></div>
+<div class="reader" id="reader" hidden role="dialog" aria-modal="true" aria-labelledby="rTitle">
+  <div class="r-head"><button type="button" class="icon-btn" id="rClose">Done</button><h2 id="rTitle"></h2><span class="r-timer" id="rTimer"></span></div>
+  <div class="r-body" id="rBody"></div>
+  <div class="r-nav" id="rNav" hidden><button type="button" class="btn ghost" id="rPrev">Previous</button><span id="rPos"></span><button type="button" class="btn ghost" id="rNext">Next</button></div>
+</div>
+<script>
+const BOOKS = [
+  { id:"p1", range:[0,24], title:"Weeks 18 to 24: rhythm and rhyme",
+    why:"Hearing is switching on. Short, rhythmic, rhyming books carry well and are easy to repeat.",
+    items:[
+      ["Goodnight Moon","Margaret Wise Brown"],
+      ["Guess How Much I Love You","Sam McBratney"],
+      ["Each Peach Pear Plum","Janet and Allan Ahlberg"],
+      ["Brown Bear, Brown Bear, What Do You See?","Bill Martin Jr."],
+      ["On the Night You Were Born","Nancy Tillman"],
+      ["Oh, the Places You'll Go!","Dr. Seuss"]
+    ]},
+  { id:"p2", range:[25,32], title:"Weeks 25 to 32: voices and stories",
+    why:"Baby can now respond to familiar voices. Lean into stories with a lilt, sound effects and repeated refrains.",
+    items:[
+      ["The Gruffalo","Julia Donaldson"],
+      ["Room on the Broom","Julia Donaldson"],
+      ["We're Going on a Bear Hunt","Michael Rosen"],
+      ["Owl Babies","Martin Waddell"],
+      ["The Very Hungry Caterpillar","Eric Carle"],
+      ["Anna Hibiscus","Atinuke"]
+    ]},
+  { id:"p3", range:[33,42], title:"Weeks 33 to 40: favourites for after birth",
+    why:"Settle on the books you'll keep reading once baby arrives, so the first nights home sound familiar.",
+    items:[
+      ["Winnie-the-Pooh","A. A. Milne"],
+      ["The Little Prince","Antoine de Saint-Exupéry"],
+      ["Charlotte's Web","E. B. White"],
+      ["The Wind in the Willows","Kenneth Grahame"],
+      ["Lullabies and stories from your family's languages","Your own family"],
+      ["A letter to the baby, written by you","You"]
+    ]},
+  { id:"bible", range:[-1,-1], title:"Bible stories, any week",
+    why:"Short passages and stories to weave in at any stage. Psalm 139 and the Aaronic blessing make a lovely close to the night.",
+    items:[
+      ["Psalm 139: You knit me together in my mother's womb","Psalm 139:13–16"],
+      ["Psalm 23: The Lord is my shepherd","Psalm 23"],
+      ["The Creation","Genesis 1–2"],
+      ["Noah and the ark","Genesis 6–9"],
+      ["Hannah prays for a baby","1 Samuel 1"],
+      ["Baby Moses in the basket","Exodus 2:1–10"],
+      ["David and Goliath","1 Samuel 17"],
+      ["Daniel in the lions' den","Daniel 6"],
+      ["Jonah and the big fish","Jonah 1–3"],
+      ["The birth of Jesus","Luke 2:1–20"],
+      ["The lost sheep","Luke 15:3–7"],
+      ["Jesus blesses the little children","Mark 10:13–16"],
+      ["The Lord bless you and keep you","Numbers 6:24–26"],
+      ["The Jesus Storybook Bible","Sally Lloyd-Jones"]
+    ]}
+];
+const ALL_BOOKS = BOOKS.flatMap(p=>p.items.map(i=>i[0]));
+const SPINE_COLORS = ["#9DB088","#EE9F3E","#E79A8A","#C3A0D3"];
+const LS_KEY = "bump-story-time-v1";
+const DAY = 86400000;
+
+let state = { dueDate:null, signature:null, sessions:[] };
+let docRef = null;
+let writeChain = Promise.resolve();
+let reader = "Dad";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const todayISO = () => { const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const parseISO = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const fmtDate = s => parseISO(s).toLocaleDateString(undefined,{day:"numeric",month:"short"});
+const fmtLong = s => parseISO(s).toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"});
+
+function defaultDue(){ // assumes 19 weeks today as a starting suggestion
+  const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+21*7);
+  d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); return d.toISOString().slice(0,10);
+}
+function dueDate(){ return state.dueDate || defaultDue(); }
+function gestAt(iso){ // returns {w,d} gestational age at date
+  const diff = Math.round((parseISO(dueDate()) - parseISO(iso))/DAY);
+  const total = 280 - diff;
+  return { w:Math.floor(total/7), d:((total%7)+7)%7, total };
+}
+
+/* ---------- storage ---------- */
+function loadLocal(){
+  try{ const raw=localStorage.getItem(LS_KEY); if(raw){ const s=JSON.parse(raw); if(s&&Array.isArray(s.sessions)) state=s; } }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+  if(docRef){
+    const snapshot = JSON.parse(JSON.stringify(state));
+    writeChain = writeChain.then(()=>docRef.set(snapshot)).catch(err=>{
+      $("syncNote").textContent = "Couldn't sync that change (" + (err&&err.code||"error") + "). It's still saved on this device.";
+    });
+  }
+}
+async function connectDb(){
+  try{
+    if(!window.claude || !window.claude.use) { $("syncNote").textContent="Saved on this device."; return; }
+    const db = await window.claude.use("db");
+    if(!db){ $("syncNote").textContent="Saved on this device."; return; }
+    docRef = db.doc("journal/main");
+    let first = true;
+    docRef.onSnapshot(snap=>{
+      if(snap.exists){
+        const d = snap.data();
+        if(d && Array.isArray(d.sessions)){ state = d; try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){} render(); }
+      } else if(first && state.sessions.length){
+        save(); // carry over anything logged before sync connected
+      }
+      first = false;
+      $("syncNote").textContent = "Synced, so it's the same log on any device where you open this page.";
+    }, err=>{
+      $("syncNote").textContent = "Sync is unavailable right now; saving on this device.";
+    });
+  }catch(e){ $("syncNote").textContent="Saved on this device."; }
+}
+
+/* ---------- stats ---------- */
+function stats(){
+  const nights = new Set(state.sessions.map(s=>s.date));
+  const mins = state.sessions.reduce((a,s)=>a+(+s.minutes||0),0);
+  const kickNights = new Set(state.sessions.filter(s=>s.kicks).map(s=>s.date)).size;
+  let streak=0; const d=parseISO(todayISO());
+  if(!nights.has(todayISO())) d.setDate(d.getDate()-1);
+  while(true){
+    const iso=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+    if(nights.has(iso)){ streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return { nights:nights.size, mins, kickNights, streak };
+}
+
+/* ---------- render ---------- */
+function render(){
+  const g = gestAt(todayISO());
+  const wk = Math.max(0,Math.min(42,g.w));
+  $("weekLabel").innerHTML = "Week " + wk + "<small>and " + g.d + (g.d===1?" day":" days") + "</small>";
+  const daysLeft = Math.round((parseISO(dueDate())-parseISO(todayISO()))/DAY);
+  const left = daysLeft>0 ? (Math.floor(daysLeft/7)+" weeks "+(daysLeft%7?("and "+daysLeft%7+" days "):"")+"until you meet. ") : "Any day now. ";
+  $("dueLine").innerHTML = esc(left) + "Due " + esc(fmtLong(dueDate())) + (state.dueDate?"":" (estimated)") + ". <button type=\"button\" id=\"dueToggle\">Change due date</button>";
+  $("dueToggle").onclick = ()=>{ $("dueEdit").classList.toggle("open"); $("dueInput").value=dueDate(); $("dueInput").focus(); };
+
+  // shelf
+  const perWeek = {};
+  state.sessions.forEach(s=>{ const w=gestAt(s.date).w; perWeek[w]=(perWeek[w]||0)+(+s.minutes||0); });
+  const maxM = Math.max(70, ...Object.values(perWeek));
+  let html="";
+  for(let w=16; w<=40; w++){
+    const m=perWeek[w]||0;
+    const cls = w>wk ? "spine future" : (m? "spine":"spine empty");
+    const h = m ? Math.max(18, Math.round(102*m/maxM)) : null;
+    const style = m ? `height:${h}px;background:${SPINE_COLORS[w%4]}` : "";
+    html += `<div class="${cls}${w===wk?" now":""}" style="${style}" title="Week ${w}: ${m} min"></div>`;
+  }
+  $("shelf").innerHTML = html;
+
+  const st=stats();
+  $("sStreak").textContent=st.streak; $("sNights").textContent=st.nights;
+  $("sMins").textContent=st.mins; $("sKicks").textContent=st.kickNights;
+
+  const todayMins = state.sessions.filter(s=>s.date===todayISO()).reduce((a,s)=>a+(+s.minutes||0),0);
+  $("tonightH").textContent = todayMins ? "Read tonight" : "Tonight";
+  $("tonightLede").textContent = todayMins
+    ? `${todayMins} minutes so far. Read again whenever you like.`
+    : "Ten minutes at bedtime is plenty. Sit close and read in a normal, warm voice.";
+  const phase = BOOKS.find(p=>wk>=p.range[0]&&wk<=p.range[1]) || BOOKS[0];
+  const pickT = state.signature || phase.items[0][0];
+  const pickA = (BOOKS.flatMap(p=>p.items).find(i=>i[0]===pickT)||[pickT,"Your pick"])[1];
+  $("tonightPick").innerHTML = `<div class="pick"><div class="cover" aria-hidden="true"></div>
+    <div><div class="a">${state.signature?"Your signature book":"Suggested for week "+wk}</div><div class="t">${esc(pickT)}</div><div class="a">${esc(pickA)}</div></div>
+    <button type="button" class="btn ghost" data-log="${esc(pickT)}">Log it</button></div>`;
+
+  // signature
+  $("signatureBox").innerHTML = state.signature
+    ? `<p class="signature">Your signature book is <b>${esc(state.signature)}</b>. Read it a few times a week.</p>`
+    : `<p class="signature">Tap the star on any book below to make it your signature book.</p>`;
+
+  // phases
+  const counts={}; state.sessions.forEach(s=>{counts[s.book]=(counts[s.book]||0)+1;});
+  $("phases").innerHTML = BOOKS.map(p=>{
+    const current = wk>=p.range[0] && wk<=p.range[1];
+    return `<div class="phase${current?" current":""}">
+      <h3>${esc(p.title)}</h3><p class="why">${esc(p.why)}</p>
+      <ul class="books">${p.items.map(([t,a])=>{
+        const c=counts[t]||0; const sig=state.signature===t;
+        return `<li class="book"><div class="meta"><div class="t">${esc(t)}</div><div class="a">${esc(a)}${c?` <span class="count">read ${c}×</span>`:""}</div></div>
+        <div class="act"><button type="button" class="icon-btn star" data-star="${esc(t)}" aria-pressed="${sig}" aria-label="${sig?"Remove":"Set"} ${esc(t)} as signature book">${sig?"★":"☆"}</button>
+        <button type="button" class="icon-btn" data-pick="${esc(t)}">Read tonight</button></div></li>`;
+      }).join("")}</ul></div>`;
+  }).join("");
+
+  // history
+  const sorted=[...state.sessions].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  $("hist").innerHTML = sorted.length ? sorted.map(s=>{
+    const g2=gestAt(s.date);
+    return `<li><div class="d">${esc(fmtDate(s.date))}<br>wk ${g2.w}</div>
+      <div class="body"><div class="t">${esc(s.book)}</div>
+      <div class="m">${esc(s.minutes)} min, read by ${esc(s.reader)}${s.kicks?", baby moved":""}</div>
+      ${s.note?`<div class="n">“${esc(s.note)}”</div>`:""}</div>
+      <button type="button" class="del" data-del="${esc(s.id)}" aria-label="Delete this entry">Delete</button></li>`;
+  }).join("") : `<li class="empty-state">Nothing logged yet. Tonight's the first page.</li>`;
+}
+
+/* ---------- events ---------- */
+$("bookList").innerHTML = ALL_BOOKS.map(b=>`<option value="${esc(b)}">`).join("");
+$("fDate").value = todayISO();
+
+$("readerChips").addEventListener("click", e=>{
+  const b=e.target.closest(".chip"); if(!b) return;
+  reader=b.dataset.r;
+  document.querySelectorAll("#readerChips .chip").forEach(c=>c.setAttribute("aria-pressed", c===b));
+});
+
+$("logBtn").addEventListener("click", ()=>{
+  const book=$("fBook").value.trim();
+  const minutes=parseInt($("fMin").value,10);
+  const date=$("fDate").value||todayISO();
+  if(!book){ $("toast").textContent="Add the book you read, then log it."; $("fBook").focus(); return; }
+  if(!(minutes>0)){ $("toast").textContent="Enter how many minutes you read."; $("fMin").focus(); return; }
+  state.sessions.push({ id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    date, book, minutes, reader, kicks:$("fKick").checked, note:$("fNote").value.trim() });
+  save(); render();
+  closeSheet(); showPill(state.sessions.length===1 ? "Logged. Your first night on the shelf." : "Logged. Same time tomorrow?");
+  $("fNote").value=""; $("fKick").checked=false; $("fBook").value="";
+});
+
+$("phases").addEventListener("click", e=>{
+  const pick=e.target.closest("[data-pick]");
+  if(pick){ $("fBook").value=pick.dataset.pick; $("fDate").value=todayISO(); openSheet(); return; }
+  const star=e.target.closest("[data-star]");
+  if(star){ const t=star.dataset.star; state.signature = state.signature===t ? null : t; save(); render(); }
+});
+
+$("hist").addEventListener("click", e=>{
+  const del=e.target.closest("[data-del]"); if(!del) return;
+  if(!confirm("Delete this entry?")) return;
+  state.sessions = state.sessions.filter(s=>s.id!==del.dataset.del);
+  save(); render();
+});
+
+$("dueSave").addEventListener("click", ()=>{
+  const v=$("dueInput").value; if(!v) return;
+  state.dueDate=v; save(); render(); $("dueEdit").classList.remove("open");
+});
+
+$("exportBtn").addEventListener("click", ()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="story-time-backup-"+todayISO()+".json"; document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1000);
+  $("bkToast").textContent="Backup saved. Keep it in Files or iCloud Drive.";
+});
+$("importFile").addEventListener("change", e=>{
+  const f=e.target.files[0]; if(!f) return;
+  f.text().then(t=>{
+    const d=JSON.parse(t);
+    if(!d||!Array.isArray(d.sessions)) throw 0;
+    if(!confirm("Replace this log with the backup ("+d.sessions.length+" sessions)?")) return;
+    state=d; save(); render(); $("bkToast").textContent="Backup restored.";
+  }).catch(()=>{ $("bkToast").textContent="That file isn't a Story Time backup. Choose a file saved with Save a backup."; });
+  e.target.value="";
+});
+
+/* ---------- My books: local PDF / EPUB reader ---------- */
+const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+const PDFW="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+const JSZIP="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+const EPUBJS="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js";
+const scriptCache={};
+function loadScript(src){
+  return scriptCache[src] || (scriptCache[src]=new Promise((res,rej)=>{
+    const s=document.createElement("script"); s.src=src; s.onload=res;
+    s.onerror=()=>{ delete scriptCache[src]; rej(new Error("load")); };
+    document.head.appendChild(s);
+  }));
+}
+let idbP=null;
+function idb(){
+  return idbP || (idbP=new Promise((res,rej)=>{
+    const r=indexedDB.open("story-time-books",1);
+    r.onupgradeneeded=()=>{ const d=r.result; d.createObjectStore("meta",{keyPath:"id"}); d.createObjectStore("files"); };
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+  }));
+}
+function req(store,mode,fn){
+  return idb().then(d=>new Promise((res,rej)=>{
+    const t=d.transaction(store,mode); const r=fn(t.objectStore(store));
+    t.oncomplete=()=>res(r && "result" in r ? r.result : undefined);
+    t.onerror=t.onabort=()=>rej(t.error);
+  }));
+}
+const fmtSize=b=> b>1048576 ? (b/1048576).toFixed(1)+" MB" : Math.max(1,Math.round(b/1024))+" KB";
+let myBookNames=[]; let lastMetas=[];
+async function renderMyBooks(){
+  let metas=[];
+  try{ metas=await req("meta","readonly",s=>s.getAll()) || []; }catch(e){}
+  metas.sort((a,b)=>(b.lastRead||b.added)-(a.lastRead||a.added));
+  myBookNames=metas.map(m=>m.name); lastMetas=metas;
+  $("startBtn").textContent = metas.length ? "Keep reading" : "Choose a book";
+  $("bookList").innerHTML=[...new Set([...myBookNames,...ALL_BOOKS])].map(b=>`<option value="${esc(b)}">`).join("");
+  $("myBooks").innerHTML = metas.length ? metas.map(m=>`<li class="book"><div class="meta">
+      <div class="t">${esc(m.name)}</div>
+      <div class="a">${m.type.toUpperCase()}, ${fmtSize(m.size)}${m.lastRead?`, last read ${esc(new Date(m.lastRead).toLocaleDateString(undefined,{day:"numeric",month:"short"}))}`:""}</div></div>
+      <div class="act"><button type="button" class="icon-btn" data-open="${esc(m.id)}">Open</button>
+      <button type="button" class="icon-btn" data-remove="${esc(m.id)}" aria-label="Remove ${esc(m.name)}">Remove</button></div></li>`).join("")
+    : `<li class="empty-state">No books added yet. Add a PDF or EPUB from your Files app.</li>`;
+}
+$("addBook").addEventListener("change", async e=>{
+  const files=[...e.target.files]; e.target.value="";
+  let added=0;
+  for(const f of files){
+    const ext=(f.name.split(".").pop()||"").toLowerCase();
+    if(ext!=="pdf" && ext!=="epub"){ $("mbToast").textContent=f.name+" isn't a PDF or EPUB, so it was skipped."; continue; }
+    const id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    try{
+      const buf=await f.arrayBuffer();
+      await req("files","readwrite",s=>s.put(buf,id));
+      await req("meta","readwrite",s=>s.put({id,name:f.name.replace(/\.(pdf|epub)$/i,""),type:ext,size:f.size,added:Date.now(),loc:null}));
+      added++;
+    }catch(err){ $("mbToast").textContent="Couldn't save "+f.name+". Your phone's storage may be full."; }
+  }
+  try{ navigator.storage && navigator.storage.persist && navigator.storage.persist(); }catch(e){}
+  if(added) $("mbToast").textContent = added===1 ? "Book added." : added+" books added.";
+  renderMyBooks();
+});
+$("myBooks").addEventListener("click", async e=>{
+  const o=e.target.closest("[data-open]"); if(o){ openBook(o.dataset.open); return; }
+  const r=e.target.closest("[data-remove]");
+  if(r){
+    if(!confirm("Remove this book from Story Time? The original file on your phone isn't affected.")) return;
+    const id=r.dataset.remove;
+    try{ await req("files","readwrite",s=>s.delete(id)); await req("meta","readwrite",s=>s.delete(id)); }catch(err){}
+    renderMyBooks();
+  }
+});
+
+let current={};
+async function openBook(id){
+  let meta, buf;
+  try{ meta=await req("meta","readonly",s=>s.get(id)); buf=await req("files","readonly",s=>s.get(id)); }catch(e){}
+  if(!meta||!buf){ $("mbToast").textContent="That book couldn't be found. Try adding it again."; return; }
+  current={meta,type:meta.type,start:Date.now()};
+  $("rTitle").textContent=meta.name; $("reader").hidden=false; document.body.style.overflow="hidden";
+  $("rBody").className="r-body"; $("rBody").innerHTML='<p class="r-msg">Opening your book…</p>';
+  $("rTimer").textContent="0 min";
+  current.timer=setInterval(()=>{ $("rTimer").textContent=Math.floor((Date.now()-current.start)/60000)+" min"; },15000);
+  $("rClose").focus();
+  try{ meta.type==="pdf" ? await openPdf(meta,buf) : await openEpub(meta,buf); }
+  catch(err){ $("rBody").innerHTML='<p class="r-msg">This book couldn\'t open. It may be copy-protected, or the reader needs an internet connection the first time you open a book.</p>'; }
+}
+async function openPdf(meta,buf){
+  await loadScript(PDFJS);
+  const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=PDFW;
+  const pdf=await lib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;
+  current.pdf=pdf;
+  const body=$("rBody"); body.innerHTML="";
+  const vp1=(await pdf.getPage(1)).getViewport({scale:1});
+  const obs=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) renderPdfPage(en.target); }),{root:body,rootMargin:"800px 0px"});
+  current.obs=obs;
+  for(let i=1;i<=pdf.numPages;i++){
+    const d=document.createElement("div"); d.className="pdf-page"; d.dataset.p=i;
+    d.style.aspectRatio=vp1.width+" / "+vp1.height; body.appendChild(d); obs.observe(d);
+  }
+  if(meta.loc>1){ const t=body.querySelector(`[data-p="${meta.loc}"]`); if(t) body.scrollTop=t.offsetTop-12; }
+}
+async function renderPdfPage(div){
+  if(div.dataset.r || !current.pdf) return; div.dataset.r="1";
+  const page=await current.pdf.getPage(+div.dataset.p);
+  const vp0=page.getViewport({scale:1});
+  div.style.aspectRatio=vp0.width+" / "+vp0.height;
+  const scale=(div.clientWidth/vp0.width)*Math.min(window.devicePixelRatio||1,2);
+  const vp=page.getViewport({scale});
+  const c=document.createElement("canvas"); c.width=Math.floor(vp.width); c.height=Math.floor(vp.height);
+  div.appendChild(c);
+  await page.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
+}
+async function openEpub(meta,buf){
+  await loadScript(JSZIP); await loadScript(EPUBJS);
+  const body=$("rBody"); body.className="r-body epub"; body.innerHTML='<div id="epubView"></div>';
+  const book=window.ePub(buf.slice(0));
+  const rend=book.renderTo("epubView",{width:"100%",height:"100%",flow:"paginated",spread:"none"});
+  const ink=getComputedStyle(document.documentElement).getPropertyValue("--ink").trim();
+  rend.themes.default({ body:{ "font-family":"Georgia, 'Times New Roman', serif", "color":ink+" !important", "line-height":"1.65", "font-size":"115%" }, "a":{ "color":"inherit" } });
+  current.book=book; current.rend=rend;
+  rend.on("relocated",loc=>{
+    current.loc=loc.start.cfi;
+    const dp=loc.start.displayed; $("rPos").textContent = dp ? `Page ${dp.page} of ${dp.total}` : "";
+  });
+  let tx=0;
+  rend.on("touchstart",ev=>{ tx=ev.changedTouches[0].screenX; });
+  rend.on("touchend",ev=>{ const dx=ev.changedTouches[0].screenX-tx; if(Math.abs(dx)>50){ dx<0?rend.next():rend.prev(); } });
+  rend.on("keyup",ev=>{ if(ev.key==="ArrowRight") rend.next(); if(ev.key==="ArrowLeft") rend.prev(); });
+  $("rNav").hidden=false;
+  await rend.display(meta.loc||undefined);
+}
+async function closeReader(){
+  if(!current.meta) return;
+  let loc=null;
+  if(current.type==="pdf"){
+    const body=$("rBody"); const pages=[...body.querySelectorAll(".pdf-page")];
+    const p=pages.find(d=>d.offsetTop+d.offsetHeight>body.scrollTop+40); loc=p?+p.dataset.p:1;
+    try{ current.obs&&current.obs.disconnect(); current.pdf&&current.pdf.destroy(); }catch(e){}
+  } else {
+    loc=current.loc||current.meta.loc||null;
+    try{ current.book&&current.book.destroy(); }catch(e){}
+  }
+  const m=current.meta; m.loc=loc; m.lastRead=Date.now();
+  try{ await req("meta","readwrite",s=>s.put(m)); }catch(e){}
+  clearInterval(current.timer);
+  const mins=Math.round((Date.now()-current.start)/60000);
+  $("reader").hidden=true; $("rNav").hidden=true; $("rPos").textContent=""; $("rBody").innerHTML="";
+  document.body.style.overflow="";
+  current={};
+  if(mins>=1){
+    $("fBook").value=m.name; $("fMin").value=mins; $("fDate").value=todayISO();
+    $("toast").textContent=`You read for ${mins} min. Add a note if you like, then tap Log reading.`;
+    openSheet();
+  }
+  renderMyBooks();
+}
+$("rClose").addEventListener("click", closeReader);
+$("rPrev").addEventListener("click", ()=>current.rend&&current.rend.prev());
+$("rNext").addEventListener("click", ()=>current.rend&&current.rend.next());
+document.addEventListener("keydown", e=>{
+  if($("reader").hidden) return;
+  if(e.key==="Escape") closeReader();
+  if(current.rend){ if(e.key==="ArrowRight") current.rend.next(); if(e.key==="ArrowLeft") current.rend.prev(); }
+});
+
+/* ---------- app shell: tabs, sheet, pill ---------- */
+function showTab(name){
+  ["tonight","books","log"].forEach(n=>{ $("view-"+n).hidden = n!==name; });
+  document.querySelectorAll(".tabs button").forEach(b=>{ if(b.dataset.tab===name) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  window.scrollTo(0,0);
+}
+document.querySelector(".tabs").addEventListener("click", e=>{ const b=e.target.closest("[data-tab]"); if(b) showTab(b.dataset.tab); });
+function openSheet(){
+  if(!$("fDate").value) $("fDate").value=todayISO();
+  $("scrim").hidden=false; requestAnimationFrame(()=>{ $("scrim").classList.add("open"); $("sheet").classList.add("open"); });
+  document.body.style.overflow="hidden";
+  setTimeout(()=>{ ($("fBook").value ? $("fMin") : $("fBook")).focus({preventScroll:true}); },320);
+}
+function closeSheet(){
+  $("sheet").classList.remove("open"); $("scrim").classList.remove("open");
+  setTimeout(()=>{ $("scrim").hidden=true; },260);
+  document.body.style.overflow=""; $("toast").textContent="";
+}
+$("openLog").addEventListener("click", ()=>{ $("fDate").value=todayISO(); openSheet(); });
+$("sheetClose").addEventListener("click", closeSheet);
+$("scrim").addEventListener("click", closeSheet);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && $("sheet").classList.contains("open")) closeSheet(); });
+let pillT;
+function showPill(msg){ const p=$("pill"); p.textContent=msg; p.classList.add("show"); clearTimeout(pillT); pillT=setTimeout(()=>p.classList.remove("show"),2600); }
+$("tonightPick").addEventListener("click", e=>{
+  const b=e.target.closest("[data-log]"); if(!b) return;
+  $("fBook").value=b.dataset.log; $("fDate").value=todayISO(); openSheet();
+});
+$("startBtn").addEventListener("click", ()=>{
+  if(lastMetas.length) openBook(lastMetas[0].id); else showTab("books");
+});
+
+loadLocal();
+render();
+renderMyBooks();
+connectDb();
+</script>
+</body>
+</html>
